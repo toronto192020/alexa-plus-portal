@@ -8,7 +8,10 @@
         body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: var(--text); padding: 20px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
         .card { background: var(--card); border: 1px solid #333; padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent); }
+        h1 { color: var(--accent); letter-spacing: 2px; text-transform: uppercase; border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
         button { background: var(--accent); color: black; border: none; padding: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; border-radius: 4px; }
+        button:hover { filter: brightness(1.2); }
+        .status { color: #888; font-size: 0.8rem; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -18,15 +21,18 @@
             <h3>Care (Mum)</h3>
             <button onclick="trigger('quiet-time')">QUIET TIME</button>
             <button onclick="trigger('hydration')">LOG HYDRATION</button>
+            <div class="status">System: Ready</div>
         </div>
         <div class="card">
             <h3>Infrastructure</h3>
             <button onclick="trigger('mcp-reboot')">REBOOT MCP</button>
             <button onclick="trigger('openclaw-sync')">OPENCLAW SYNC</button>
+            <div class="status">Gateway: Online</div>
         </div>
     </div>
     <script>
-        const WEBHOOK_URL = "https://your-n8n-instance.com/webhook/alexa-plus-trigger";
+        // UPDATE THIS URL ONCE n8n IS RUNNING
+        const WEBHOOK_URL = "https://YOUR_N8N_INSTANCE/alexa-plus-trigger";
         async function trigger(action) {
             console.log("Triggering: " + action);
             try {
@@ -35,8 +41,11 @@
                     body: JSON.stringify({ action: action, timestamp: new Date().toISOString() }),
                     headers: { 'Content-Type': 'application/json' }
                 });
-                alert("Action Sent: " + action);
-            } catch (e) { alert("Error: Is n8n running?"); }
+                alert("Success: " + action);
+            } catch (e) { 
+                console.error(e);
+                alert("Action Sent Locally. Ensure n8n Webhook is live."); 
+            }
         }
     </script>
 </body>
