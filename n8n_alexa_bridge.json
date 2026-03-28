@@ -1,0 +1,7 @@
+{
+  "nodes": [
+    { "parameters": { "httpMethod": "POST", "path": "alexa-plus-trigger" }, "name": "Webhook", "type": "n8n-nodes-base.webhook", "typeVersion": 1, "position": [100, 200] },
+    { "parameters": { "conditions": { "string": [ { "value1": "={{ $node[\"Webhook\"].json[\"action\"] }}", "value2": "quiet-time" } ] } }, "name": "Action Router", "type": "n8n-nodes-base.if", "typeVersion": 1, "position": [300, 200] }
+  ],
+  "connections": { "Webhook": { "main": [ [ { "node": "Action Router", "type": "main", "index": 0 } ] ] } }
+}

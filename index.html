@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Alexa+ Command Centre</title>
+    <style>
+        :root { --accent: #00d4ff; --bg: #0a0a0a; --card: #161616; --text: #e0e0e0; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: var(--text); padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
+        .card { background: var(--card); border: 1px solid #333; padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent); }
+        button { background: var(--accent); color: black; border: none; padding: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>ALEXA+ CONTROL</h1>
+    <div class="grid">
+        <div class="card">
+            <h3>Care (Mum)</h3>
+            <button onclick="trigger('quiet-time')">QUIET TIME</button>
+            <button onclick="trigger('hydration')">LOG HYDRATION</button>
+        </div>
+        <div class="card">
+            <h3>Infrastructure</h3>
+            <button onclick="trigger('mcp-reboot')">REBOOT MCP</button>
+            <button onclick="trigger('openclaw-sync')">OPENCLAW SYNC</button>
+        </div>
+    </div>
+    <script>
+        const WEBHOOK_URL = "https://your-n8n-instance.com/webhook/alexa-plus-trigger";
+        async function trigger(action) {
+            console.log("Triggering: " + action);
+            try {
+                await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: action, timestamp: new Date().toISOString() }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                alert("Action Sent: " + action);
+            } catch (e) { alert("Error: Is n8n running?"); }
+        }
+    </script>
+</body>
+</html>
