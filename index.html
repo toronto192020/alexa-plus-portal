@@ -4,14 +4,21 @@
     <meta charset="UTF-8">
     <title>Alexa+ Command Centre</title>
     <style>
-        :root { --accent: #00d4ff; --bg: #0a0a0a; --card: #161616; --text: #e0e0e0; }
+        :root { --accent: #00d4ff; --bg: #0a0a0a; --card: #161616; --text: #e0e0e0; --echo: #a78bfa; }
         body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: var(--text); padding: 20px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
         .card { background: var(--card); border: 1px solid #333; padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent); }
+        .card.echo-show { border-left-color: var(--echo); }
         h1 { color: var(--accent); letter-spacing: 2px; text-transform: uppercase; border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
+        h3 { margin-top: 0; }
+        .card.echo-show h3 { color: var(--echo); }
         button { background: var(--accent); color: black; border: none; padding: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; border-radius: 4px; }
         button:hover { filter: brightness(1.2); }
+        .card.echo-show button { background: var(--echo); }
         .status { color: #888; font-size: 0.8rem; margin-top: 10px; }
+        .view-preview { background: #0d0d1a; border: 1px solid var(--echo); border-radius: 6px; padding: 10px; margin-top: 12px; font-size: 0.75rem; color: var(--echo); min-height: 60px; }
+        .view-preview span { display: block; margin-bottom: 4px; }
+        .badge { display: inline-block; background: var(--echo); color: black; font-size: 0.65rem; font-weight: bold; border-radius: 3px; padding: 2px 6px; margin-left: 6px; vertical-align: middle; }
     </style>
 </head>
 <body>
@@ -21,18 +28,32 @@
             <h3>Care (Mum)</h3>
             <button onclick="trigger('quiet-time')">QUIET TIME</button>
             <button onclick="trigger('hydration')">LOG HYDRATION</button>
-            <div class="status">System: Ready</div>
+            <div class="status" id="status-care">System: Ready</div>
         </div>
         <div class="card">
             <h3>Infrastructure</h3>
             <button onclick="trigger('mcp-reboot')">REBOOT MCP</button>
             <button onclick="trigger('openclaw-sync')">OPENCLAW SYNC</button>
-            <div class="status">Gateway: Online</div>
+            <div class="status" id="status-infra">Gateway: Online</div>
+        </div>
+        <div class="card echo-show">
+            <h3>Echo Show <span class="badge">VIEW ASSIST</span></h3>
+            <button onclick="triggerView('care-summary')">CARE SUMMARY VIEW</button>
+            <button onclick="triggerView('hydration-tracker')">HYDRATION TRACKER VIEW</button>
+            <button onclick="triggerView('daily-schedule')">DAILY SCHEDULE VIEW</button>
+            <button onclick="triggerView('system-status')">SYSTEM STATUS VIEW</button>
+            <div class="view-preview" id="view-preview">
+                <span>&#9654; No view active</span>
+                <span style="color:#555">Send a view command to push content to Echo Show display</span>
+            </div>
+            <div class="status" id="status-echo">Echo Show: Standby</div>
         </div>
     </div>
     <script>
         // UPDATE THIS URL ONCE n8n IS RUNNING
         const WEBHOOK_URL = "https://YOUR_N8N_INSTANCE/alexa-plus-trigger";
+        const VIEW_WEBHOOK_URL = "https://YOUR_N8N_INSTANCE/echo-show-view-assist";
+
         async function trigger(action) {
             console.log("Triggering: " + action);
             try {
@@ -42,9 +63,34 @@
                     headers: { 'Content-Type': 'application/json' }
                 });
                 alert("Success: " + action);
-            } catch (e) { 
+            } catch (e) {
                 console.error(e);
-                alert("Action Sent Locally. Ensure n8n Webhook is live."); 
+                alert("Action Sent Locally. Ensure n8n Webhook is live.");
+            }
+        }
+
+        async function triggerView(viewName) {
+            console.log("Pushing Echo Show view: " + viewName);
+            const preview = document.getElementById('view-preview');
+            const statusEl = document.getElementById('status-echo');
+            preview.innerHTML = '<span>&#9654; Sending view: ' + viewName + '...</span>';
+            statusEl.textContent = 'Echo Show: Pushing view...';
+            try {
+                await fetch(VIEW_WEBHOOK_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        view: viewName,
+                        device: 'echo-show',
+                        timestamp: new Date().toISOString()
+                    }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                preview.innerHTML = '<span>&#10003; Active view: ' + viewName + '</span><span style="color:#555">Pushed to Echo Show display via APL</span>';
+                statusEl.textContent = 'Echo Show: View Active';
+            } catch (e) {
+                console.error(e);
+                preview.innerHTML = '<span style="color:#f87171">&#9888; Sent locally — connect n8n to activate Echo Show</span>';
+                statusEl.textContent = 'Echo Show: Awaiting n8n';
             }
         }
     </script>

@@ -1,7 +1,70 @@
 {
   "nodes": [
-    { "parameters": { "httpMethod": "POST", "path": "alexa-plus-trigger", "options": {} }, "name": "Webhook", "type": "n8n-nodes-base.webhook", "typeVersion": 1, "position": [100, 200] },
-    { "parameters": { "conditions": { "string": [ { "value1": "={{ $node[\"Webhook\"].json[\"action\"] }}", "value2": "quiet-time" } ] } }, "name": "Action Router", "type": "n8n-nodes-base.if", "typeVersion": 1, "position": [300, 200] }
+    {
+      "parameters": { "httpMethod": "POST", "path": "alexa-plus-trigger", "options": {} },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [100, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $node[\"Webhook\"].json[\"action\"] }}", "value2": "quiet-time" }
+          ]
+        }
+      },
+      "name": "Action Router",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [300, 200]
+    },
+    {
+      "parameters": { "httpMethod": "POST", "path": "echo-show-view-assist", "options": {} },
+      "name": "Echo Show Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [100, 400]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            { "value2": "care-summary" },
+            { "value2": "hydration-tracker" },
+            { "value2": "daily-schedule" },
+            { "value2": "system-status" }
+          ]
+        },
+        "dataType": "string",
+        "value1": "={{ $node[\"Echo Show Webhook\"].json[\"view\"] }}"
+      },
+      "name": "View Assist Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [300, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'ok', view: $node[\"Echo Show Webhook\"].json[\"view\"], device: 'echo-show', timestamp: new Date().toISOString() }) }}"
+      },
+      "name": "View Assist Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [500, 400]
+    }
   ],
-  "connections": { "Webhook": { "main": [ [ { "node": "Action Router", "type": "main", "index": 0 } ] ] } }
+  "connections": {
+    "Webhook": {
+      "main": [ [ { "node": "Action Router", "type": "main", "index": 0 } ] ]
+    },
+    "Echo Show Webhook": {
+      "main": [ [ { "node": "View Assist Router", "type": "main", "index": 0 } ] ]
+    },
+    "View Assist Router": {
+      "main": [ [ { "node": "View Assist Response", "type": "main", "index": 0 } ] ]
+    }
+  }
 }
