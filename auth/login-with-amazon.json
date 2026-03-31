@@ -1,0 +1,46 @@
+{
+    "login_with_amazon": {
+          "name": "MumCare Alexa Plus Portal - Login with Amazon",
+          "version": "1.0.0",
+          "description": "Amazon LWA configuration for Alexa Plus Portal account linking and authentication",
+          "client_config": {
+                  "client_id": "${LWA_CLIENT_ID}",
+                  "client_secret": "${LWA_CLIENT_SECRET}",
+                  "authorized_redirect_uris": [
+                            "https://pitangui.amazon.com/api/skill/link/ALEXA_SKILL_ID",
+                            "https://layla.amazon.com/api/skill/link/ALEXA_SKILL_ID",
+                            "https://alexa.amazon.co.jp/api/skill/link/ALEXA_SKILL_ID",
+                            "https://toronto192020.github.io/alexa-plus-portal/auth/callback"
+                  ],
+                  "authorization_url": "https://www.amazon.com/ap/oa",
+                  "access_token_url": "https://api.amazon.com/auth/o2/token",
+                  "scope": ["profile","profile:user_id","dash:replenish","alexa::household:lists:read","alexa::household:lists:write"]
+          },
+          "account_linking": {
+                  "type": "AUTH_CODE",
+                  "authorization_url": "https://www.amazon.com/ap/oa",
+                  "access_token_url": "https://api.amazon.com/auth/o2/token",
+                  "client_id": "${LWA_CLIENT_ID}",
+                  "client_secret": "${LWA_CLIENT_SECRET}",
+                  "scopes": ["profile","profile:user_id","dash:replenish"],
+                  "default_token_expiration_in_seconds": 3600
+          },
+          "security_profile": {
+                  "name": "MumCare Alexa Plus Security Profile",
+                  "web_settings": {
+                            "allowed_origins": ["https://toronto192020.github.io","https://alexa-plus-portal.vercel.app"],
+                            "allowed_return_urls": [
+                                        "https://toronto192020.github.io/alexa-plus-portal/auth/callback",
+                                        "https://pitangui.amazon.com/api/skill/link/ALEXA_SKILL_ID",
+                                        "https://layla.amazon.com/api/skill/link/ALEXA_SKILL_ID"
+                            ]
+                  }
+          },
+          "token_management": {
+                  "refresh_token_rotation": true,
+                  "token_storage": "aws_secrets_manager",
+                  "secret_name": "mumcare/lwa-tokens",
+                  "region": "ap-southeast-2"
+          }
+    }
+}
