@@ -1,0 +1,80 @@
+{
+    "manifest": {
+          "publishingInformation": {
+                  "locales": {
+                            "en-US": {
+                                        "summary": "Alexa Plus MumCare eldercare automation for Echo Show 8",
+                                        "examplePhrases": [
+                                                      "Alexa, check on mum",
+                                                      "Alexa, show care summary",
+                                                      "Alexa, order water for mum"
+                                        ],
+                                        "keywords": ["eldercare","MumCare","hydration","fall detection","Echo Show","View Assist","dementia care"],
+                                        "name": "MumCare Alexa Plus Portal",
+                                        "description": "Complete eldercare automation system integrating Echo Show 8 View Assist, Ring security cameras, hydration tracking, fall detection, medication reminders, and Amazon replenishment for elderly care. Part of the DLAM/Rabbit R1 MumCare ecosystem."
+                            }
+                  },
+                  "isAvailableWorldwide": false,
+                  "testingInstructions": "Install on Echo Show 8. Say Alexa check on mum to trigger care summary view. Ring doorbell events auto-trigger via MCP server.",
+                  "category": "HEALTH_AND_FITNESS",
+                  "distributionCountries": ["AU","US","GB"]
+          },
+          "apis": {
+                  "custom": {
+                            "endpoint": {
+                                        "uri": "arn:aws:lambda:ap-southeast-2:ACCOUNT_ID:function:alexa-plus-mumcare"
+                            },
+                            "interfaces": [
+                                        {"type":"ALEXA_PRESENTATION_APL","supportedViewports":[{"mode":"HUB","shape":"RECTANGLE","minWidth":1024,"maxWidth":1280,"minHeight":600,"maxHeight":800}]},
+                                        {"type":"RENDER_TEMPLATE"},
+                                        {"type":"VIDEO_APP"}
+                            ],
+                            "regions": {
+                                        "NA":{"endpoint":{"uri":"arn:aws:lambda:us-east-1:ACCOUNT_ID:function:alexa-plus-mumcare"}},
+                                        "EU":{"endpoint":{"uri":"arn:aws:lambda:eu-west-1:ACCOUNT_ID:function:alexa-plus-mumcare"}},
+                                        "FE":{"endpoint":{"uri":"arn:aws:lambda:ap-southeast-2:ACCOUNT_ID:function:alexa-plus-mumcare"}}
+                            }
+                  },
+                  "smartHome": {
+                            "endpoint": {"uri":"arn:aws:lambda:ap-southeast-2:ACCOUNT_ID:function:alexa-plus-smarthome"},
+                            "protocolVersion": "3"
+                  }
+          },
+          "manifestVersion": "1.0",
+          "privacyAndCompliance": {
+                  "allowsPurchases": true,
+                  "usesPersonalInfo": true,
+                  "isChildDirected": false,
+                  "isExportCompliant": true,
+                  "containsAds": false,
+                  "locales": {
+                            "en-US": {
+                                        "privacyPolicyUrl": "https://toronto192020.github.io/alexa-plus-portal/privacy",
+                                        "termsOfUseUrl": "https://toronto192020.github.io/alexa-plus-portal/terms"
+                            }
+                  }
+          },
+          "permissions": [
+                  {"name":"alexa::devices:all:notifications:write"},
+                  {"name":"alexa::household:lists:read"},
+                  {"name":"alexa::household:lists:write"},
+                  {"name":"alexa::alerts:reminders:skill:readwrite"},
+                  {"name":"alexa::profile:name:read"},
+                  {"name":"alexa::profile:email:read"},
+                  {"name":"alexa::devices:all:address:full:read"}
+          ],
+          "events": {
+                  "endpoint": {"uri":"arn:aws:lambda:ap-southeast-2:ACCOUNT_ID:function:alexa-plus-mumcare"},
+                  "subscriptions": [
+                            {"eventName":"SKILL_ENABLED"},
+                            {"eventName":"SKILL_DISABLED"},
+                            {"eventName":"SKILL_PERMISSION_ACCEPTED"},
+                            {"eventName":"SKILL_PERMISSION_CHANGED"},
+                            {"eventName":"SKILL_PROACTIVE_SUBSCRIPTION_CHANGED"}
+                  ],
+                  "regions": {
+                            "NA":{"endpoint":{"uri":"arn:aws:lambda:us-east-1:ACCOUNT_ID:function:alexa-plus-mumcare"}}
+                  }
+          }
+    }
+}
