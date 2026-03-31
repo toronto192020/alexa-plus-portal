@@ -1,0 +1,61 @@
+{
+    "ring_mcp_server": {
+          "name": "MumCare Ring MCP Server",
+          "version": "1.0.0",
+          "description": "Ring camera Model Context Protocol server for MumCare eldercare monitoring via Alexa Plus",
+          "server": {
+                  "transport": "stdio",
+                  "command": "node",
+                  "args": ["ring-mcp-server/server.js"],
+                  "env": {
+                            "RING_REFRESH_TOKEN": "${RING_REFRESH_TOKEN}",
+                            "RING_LOCATION_ID": "${RING_LOCATION_ID}",
+                            "N8N_WEBHOOK_URL": "${N8N_INSTANCE}/ring-event-handler",
+                            "ALEXA_SKILL_ID": "${ALEXA_SKILL_ID}",
+                            "MQTT_BROKER": "${MQTT_BROKER_URL}"
+                  }
+          },
+          "tools": [
+                  {
+                            "name": "ring_get_devices",
+                            "description": "List all Ring devices at mum location",
+                            "inputSchema": {"type":"object","properties":{"location_id":{"type":"string"}}}
+                  },
+                  {
+                            "name": "ring_get_snapshot",
+                            "description": "Capture snapshot from Ring camera for care monitoring",
+                            "inputSchema": {"type":"object","properties":{"device_id":{"type":"string"},"purpose":{"type":"string","enum":["wellness_check","security","fall_detection","visitor_alert"]}},"required":["device_id"]}
+                  },
+                  {
+                            "name": "ring_get_events",
+                            "description": "Get recent Ring events for care timeline",
+                            "inputSchema": {"type":"object","properties":{"device_id":{"type":"string"},"limit":{"type":"number","default":10},"event_type":{"type":"string","enum":["motion","ding","on_demand"]}}}
+                  },
+                  {
+                            "name": "ring_motion_alert",
+                            "description": "Configure motion alerts for eldercare inactivity and fall detection",
+                            "inputSchema": {"type":"object","properties":{"device_id":{"type":"string"},"sensitivity":{"type":"string","enum":["low","medium","high","eldercare_optimized"]},"inactivity_alert_minutes":{"type":"number","default":120}},"required":["device_id"]}
+                  },
+                  {
+                            "name": "ring_live_view",
+                            "description": "Start live view on Echo Show 8 from Ring camera",
+                            "inputSchema": {"type":"object","properties":{"device_id":{"type":"string"},"target_echo_device":{"type":"string","default":"echo_show_8_mum"},"two_way_audio":{"type":"boolean","default":true}},"required":["device_id"]}
+                  }
+          ],
+          "resources": [
+                  {"uri":"ring://devices","name":"Ring Devices","mimeType":"application/json"},
+                  {"uri":"ring://events/recent","name":"Recent Events 24h","mimeType":"application/json"},
+                  {"uri":"ring://health","name":"Device Health Status","mimeType":"application/json"}
+          ],
+          "prompts": [
+                  {"name":"eldercare_motion_analysis","description":"Analyze Ring motion data for eldercare patterns - detect inactivity, falls, wandering"},
+                  {"name":"visitor_screening","description":"Screen Ring doorbell visitors and alert carer if unknown person"}
+          ],
+          "eldercare_automations": {
+                  "inactivity_monitoring": {"enabled":true,"threshold_minutes":120,"alert_targets":["alexa_echo_show","n8n_webhook","carer_phone"]},
+                  "night_wandering_detection": {"enabled":true,"active_hours":"22:00-06:00","zones":["hallway","front_door","kitchen"]},
+                  "fall_event_response": {"enabled":true,"trigger":"sudden_motion_then_stillness","response_chain":["echo_show_verbal_check","wait_30s","ring_live_view_to_carer","emergency_contact_alert"]},
+                  "daily_wellness_snapshot": {"enabled":true,"schedule":"09:00,13:00,17:00","action":"capture_snapshot_and_log_activity"}
+          }
+    }
+}
