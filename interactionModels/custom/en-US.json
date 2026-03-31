@@ -1,0 +1,69 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "mum care",
+              "intents": [
+        {
+                  "name": "CheckOnMumIntent",
+                  "samples": ["check on mum","how is mum","how's mum doing","mum status","is mum okay"]
+        },
+{
+          "name": "HydrationTrackerIntent",
+                      "slots": [{"name":"amount","type":"AMAZON.NUMBER"},{"name":"beverage","type":"BeverageType"}],
+            "samples": ["log {amount} millilitres of {beverage}","mum drank {amount} mils of {beverage}","mum had {beverage}","track hydration {amount} ml"]
+  },
+{
+          "name": "ShowCareSummaryIntent",
+                      "samples": ["show care summary","display care dashboard","open care summary","show mum care report"]
+            },
+{
+          "name": "MedicationReminderIntent",
+                      "slots": [{"name":"medication","type":"MedicationType"},{"name":"time","type":"AMAZON.TIME"}],
+            "samples": ["remind mum to take {medication}","set medication reminder for {medication} at {time}","has mum taken {medication}"]
+  },
+{
+          "name": "FallDetectionStatusIntent",
+                      "samples": ["fall detection status","any falls today","check fall alerts","has mum fallen","movement status"]
+            },
+{
+          "name": "RingCameraCheckIntent",
+                      "slots": [{"name":"camera","type":"CameraLocation"}],
+            "samples": ["show {camera} camera","check {camera} camera","show ring camera {camera}","ring doorbell check"]
+  },
+{
+          "name": "OrderSuppliesIntent",
+                      "slots": [{"name":"item","type":"SupplyItem"},{"name":"quantity","type":"AMAZON.NUMBER"}],
+          "samples": ["order {item} for mum","reorder {item}","buy {quantity} {item}","replenish {item}","mum needs {item}"]
+  },
+{
+          "name": "R1DLampControlIntent",
+                      "slots": [{"name":"lampAction","type":"LampAction"},{"name":"color","type":"AMAZON.Color"},{"name":"brightness","type":"AMAZON.NUMBER"}],
+          "samples": ["{lampAction} the R1 lamp","set R1 lamp to {color}","change lamp brightness to {brightness}","set rabbit lamp {color}"]
+  },
+{
+          "name": "EmergencyAlertIntent",
+                      "samples": ["emergency alert","mum needs help","call for help","send emergency alert","SOS"]
+            },
+{
+          "name": "ShowDailyScheduleIntent",
+                      "samples": ["show daily schedule","what is mum schedule today","display daily routine"]
+            },
+{
+          "name": "SystemStatusIntent",
+                      "samples": ["system status","check all systems","is everything working","device status"]
+            },
+{"name":"AMAZON.HelpIntent","samples":[]},
+  {"name":"AMAZON.StopIntent","samples":[]},
+  {"name":"AMAZON.CancelIntent","samples":[]},
+  {"name":"AMAZON.FallbackIntent","samples":[]}
+      ],
+      "types": [
+        {"name":"BeverageType","values":[{"name":{"value":"water"}},{"name":{"value":"tea"}},{"name":{"value":"juice"}},{"name":{"value":"milk"}},{"name":{"value":"coffee"}},{"name":{"value":"soup"}}]},
+{"name":"MedicationType","values":[{"name":{"value":"morning tablets"}},{"name":{"value":"blood pressure medication"}},{"name":{"value":"vitamins"}},{"name":{"value":"evening tablets"}}]},
+  {"name":"CameraLocation","values":[{"name":{"value":"front door"}},{"name":{"value":"back door"}},{"name":{"value":"living room"}},{"name":{"value":"hallway"}},{"name":{"value":"kitchen"}}]},
+{"name":"SupplyItem","values":[{"name":{"value":"water bottles"}},{"name":{"value":"incontinence pads"}},{"name":{"value":"hand sanitizer"}},{"name":{"value":"tissues"}},{"name":{"value":"ensure drinks"}}]},
+  {"name":"LampAction","values":[{"name":{"value":"turn on"}},{"name":{"value":"turn off"}},{"name":{"value":"dim"}},{"name":{"value":"brighten"}},{"name":{"value":"nightlight mode"}}]}
+      ]
+}
+}
+}
