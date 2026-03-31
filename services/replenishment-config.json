@@ -1,0 +1,85 @@
+{
+    "replenishment_service": {
+          "name": "MumCare Amazon Replenishment Service",
+          "version": "1.0.0",
+          "description": "Amazon DRS integration for automated eldercare supply ordering via Alexa Plus",
+          "drs_config": {
+                  "device_model_id": "${DRS_DEVICE_MODEL_ID}",
+                  "is_test_device": false,
+                  "marketplace": "amazon.com.au",
+                  "region": "FE"
+          },
+          "slots": [
+                  {
+                            "slot_id": "water_bottles",
+                            "product_category": "WATER",
+                            "display_name": "Drinking Water Bottles",
+                            "auto_reorder": true,
+                            "reorder_threshold_percent": 20,
+                            "estimated_daily_usage": 2,
+                            "units_per_order": 24,
+                            "eldercare_notes": "Critical - dehydration risk. Auto-order when 5 bottles remaining."
+                  },
+                  {
+                            "slot_id": "incontinence_supplies",
+                            "product_category": "HEALTH_PERSONAL_CARE",
+                            "display_name": "Incontinence Pads",
+                            "auto_reorder": true,
+                            "reorder_threshold_percent": 25,
+                            "estimated_daily_usage": 3,
+                            "units_per_order": 48,
+                            "eldercare_notes": "Essential dignity item. Never let stock reach zero."
+                  },
+                  {
+                            "slot_id": "nutritional_drinks",
+                            "product_category": "HEALTH_PERSONAL_CARE",
+                            "display_name": "Ensure Nutritional Drinks",
+                            "auto_reorder": true,
+                            "reorder_threshold_percent": 30,
+                            "estimated_daily_usage": 1,
+                            "units_per_order": 24,
+                            "eldercare_notes": "Nutritional supplement for weight maintenance (50kg target)."
+                  },
+                  {
+                            "slot_id": "wet_wipes",
+                            "display_name": "Gentle Wet Wipes",
+                            "auto_reorder": true,
+                            "reorder_threshold_percent": 20,
+                            "units_per_order": 12
+                  },
+                  {
+                            "slot_id": "hand_sanitizer",
+                            "display_name": "Hand Sanitizer",
+                            "auto_reorder": true,
+                            "reorder_threshold_percent": 25,
+                            "units_per_order": 3
+                  },
+                  {
+                            "slot_id": "tissues",
+                            "display_name": "Facial Tissues",
+                            "auto_reorder": true,
+                            "reorder_threshold_percent": 20,
+                            "units_per_order": 12
+                  }
+          ],
+          "alexa_voice_ordering": {
+                  "enabled": true,
+                  "confirmation_required": true,
+                  "voice_prompt": "I will order {item} for mum. The {quantity} pack arrives in {delivery_estimate}. Shall I go ahead?",
+                  "carer_notification": true,
+                  "spending_limit_monthly_aud": 200
+          },
+          "inventory_tracking": {
+                  "enabled": true,
+                  "daily_check_time": "08:00",
+                  "echo_show_display": true,
+                  "low_stock_alerts": ["echo_show_notification","alexa_app_push","n8n_email"],
+                  "n8n_webhook": "${N8N_INSTANCE}/replenishment-inventory"
+          },
+          "delivery_management": {
+                  "delivery_instructions": "Leave at front door. Ring doorbell. Elderly resident.",
+                  "ring_doorbell_integration": true,
+                  "delivery_notification_echo_show": true
+          }
+    }
+}
