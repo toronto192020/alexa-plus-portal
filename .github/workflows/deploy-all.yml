@@ -1,0 +1,136 @@
+name: Deploy All
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: deploy-all
+  cancel-in-progress: false
+
+jobs:
+  deploy-pages:
+    name: Deploy GitHub Pages Portal
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  deploy-lambda:
+    name: Deploy Lambda Function
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-2
+
+      - name: Package Lambda function
+        run: zip -j lambda.zip lambda_handler.js
+
+      - name: Deploy Lambda (ap-southeast-2)
+        run: |
+          aws lambda update-function-code \
+            --function-name alexa-plus-mumcare \
+            --zip-file fileb://lambda.zip \
+            --region ap-southeast-2
+
+      - name: Deploy Lambda (us-east-1)
+        run: |
+          aws lambda update-function-code \
+            --function-name alexa-plus-mumcare \
+            --zip-file fileb://lambda.zip \
+            --region us-east-1
+        env:
+          AWS_DEFAULT_REGION: us-east-1
+
+      - name: Deploy Lambda (eu-west-1)
+        run: |
+          aws lambda update-function-code \
+            --function-name alexa-plus-mumcare \
+            --zip-file fileb://lambda.zip \
+            --region eu-west-1
+        env:
+          AWS_DEFAULT_REGION: eu-west-1
+
+  deploy-skill:
+    name: Deploy Alexa Skill
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install ASK CLI
+        run: npm install -g ask-cli
+
+      - name: Configure ASK CLI credentials
+        run: |
+          mkdir -p ~/.ask
+          cat > ~/.ask/cli_config << EOF
+          {
+            "profiles": {
+              "default": {
+                "token": {
+                  "access_token": "${{ secrets.ASK_ACCESS_TOKEN }}",
+                  "refresh_token": "${{ secrets.ASK_REFRESH_TOKEN }}",
+                  "token_type": "bearer",
+                  "expires_in": 3600,
+                  "expires_at": "2099-01-01T00:00:00.000Z"
+                },
+                "vendor_id": "${{ secrets.ASK_VENDOR_ID }}"
+              }
+            }
+          }
+          EOF
+
+      - name: Deploy skill manifest
+        run: |
+          ask smapi update-skill-manifest \
+            --skill-id "${{ secrets.ALEXA_SKILL_ID }}" \
+            --stage development \
+            --manifest "$(cat skill.json | jq '.manifest')"
+
+      - name: Deploy interaction model (en-US)
+        run: |
+          ask smapi set-interaction-model \
+            --skill-id "${{ secrets.ALEXA_SKILL_ID }}" \
+            --stage development \
+            --locale en-US \
+            --interaction-model "$(cat interactionModels/custom/en-US.json)"
+
+      - name: Build skill model
+        run: |
+          ask smapi build-skill \
+            --skill-id "${{ secrets.ALEXA_SKILL_ID }}" \
+            --stage development
