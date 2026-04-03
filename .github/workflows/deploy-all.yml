@@ -49,35 +49,19 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-southeast-2
 
       - name: Package Lambda function
         run: zip -j lambda.zip lambda_handler.js
 
-      - name: Deploy Lambda (ap-southeast-2)
+      - name: Deploy Lambda to all regions
         run: |
-          aws lambda update-function-code \
-            --function-name alexa-plus-mumcare \
-            --zip-file fileb://lambda.zip \
-            --region ap-southeast-2
-
-      - name: Deploy Lambda (us-east-1)
-        run: |
-          aws lambda update-function-code \
-            --function-name alexa-plus-mumcare \
-            --zip-file fileb://lambda.zip \
-            --region us-east-1
-        env:
-          AWS_DEFAULT_REGION: us-east-1
-
-      - name: Deploy Lambda (eu-west-1)
-        run: |
-          aws lambda update-function-code \
-            --function-name alexa-plus-mumcare \
-            --zip-file fileb://lambda.zip \
-            --region eu-west-1
-        env:
-          AWS_DEFAULT_REGION: eu-west-1
+          for region in ap-southeast-2 us-east-1 eu-west-1; do
+            echo "Deploying to $region"
+            aws lambda update-function-code \
+              --function-name alexa-plus-mumcare \
+              --zip-file fileb://lambda.zip \
+              --region "$region"
+          done
 
   deploy-skill:
     name: Deploy Alexa Skill
