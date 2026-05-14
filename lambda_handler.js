@@ -4,8 +4,8 @@ exports.handler = async (event) => {
     const action = payload.action;
     const viewName = payload.view;
 
-    const n8n_url = "https://YOUR_N8N_INSTANCE/alexa-plus-trigger";
-    const n8n_view_url = "https://YOUR_N8N_INSTANCE/echo-show-view-assist";
+    const n8n_url = process.env.N8N_WEBHOOK_URL || "https://YOUR_N8N_INSTANCE/alexa-plus-trigger";
+    const n8n_view_url = process.env.N8N_VIEW_WEBHOOK_URL || "https://YOUR_N8N_INSTANCE/echo-show-view-assist";
 
     // Detect Echo Show / APL-capable device
     const hasDisplay = (
