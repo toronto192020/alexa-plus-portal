@@ -1,0 +1,30 @@
+name: Package Lambda
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'lambda_handler.js'
+      - 'package.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Zip Lambda function
+        run: zip lambda_function.zip lambda_handler.js
+
+      - name: Upload Lambda artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lambda-function
+          path: lambda_function.zip
+          retention-days: 30
