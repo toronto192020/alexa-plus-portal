@@ -4,7 +4,7 @@
   "description": "Alexa Plus Portal – Lambda handler for n8n/Echo Show integration",
   "main": "lambda_handler.js",
   "scripts": {
-    "package": "zip -r lambda_function.zip lambda_handler.js node_modules",
+    "package": "zip lambda_function.zip lambda_handler.js",
     "test": "node -e \"require('./lambda_handler')\" && echo 'Syntax OK'"
   },
   "engines": {
